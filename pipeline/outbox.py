@@ -1,12 +1,3 @@
-"""SQLite outbox — persistent store for images and registration jobs.
-
-Replaces the in-memory _image_store, _metadata_store, and _registration_status
-dicts in main.py. WAL mode enables concurrent reads from the ARQ worker while
-FastAPI writes.
-
-All functions take db_path as first argument for testability (no global state).
-Call init_db(settings.db_path) at app startup; use DB_PATH as the default.
-"""
 import sqlite3
 import time
 import pathlib
@@ -48,7 +39,6 @@ def _connect(db_path: str) -> sqlite3.Connection:
 
 
 def init_db(db_path: str = DB_PATH) -> None:
-    """Create tables if they don't exist. Safe to call on every startup."""
     with _connect(db_path) as conn:
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS images (
@@ -125,7 +115,6 @@ def get_job(db_path: str, watermark_id: str) -> Optional[JobRow]:
 
 
 def get_image_by_short_id(db_path: str, short_id: str) -> Optional[ImageRow]:
-    """Look up an image by short_id (used in /verify where only short_id is known)."""
     with _connect(db_path) as conn:
         row = conn.execute(
             "SELECT * FROM images WHERE short_id = ?", (short_id,)
@@ -136,7 +125,6 @@ def get_image_by_short_id(db_path: str, short_id: str) -> Optional[ImageRow]:
 
 
 def get_job_by_short_id(db_path: str, short_id: str) -> Optional[JobRow]:
-    """Look up a job via the images table short_id (used in /verify)."""
     with _connect(db_path) as conn:
         row = conn.execute(
             """SELECT j.* FROM outbox_jobs j
@@ -160,11 +148,6 @@ def insert_image_and_job(
     model: Optional[str],
     job_id: str,
 ) -> None:
-    """Atomically insert image + outbox_job in a single transaction.
-
-    If the server crashes after this call, the job row guarantees the ARQ
-    worker will pick up registration on restart.
-    """
     now = int(time.time())
     with _connect(db_path) as conn:
         conn.execute(
@@ -186,7 +169,6 @@ def get_images_by_phash_proximity(
     phash: int,
     threshold: int = 15,
 ) -> list[ImageRow]:
-    """Return images whose pHash Hamming distance to `phash` is <= threshold."""
     with _connect(db_path) as conn:
         rows = conn.execute("SELECT * FROM images").fetchall()
     results = []

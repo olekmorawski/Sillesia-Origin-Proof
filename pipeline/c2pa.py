@@ -1,14 +1,3 @@
-"""C2PA manifest signing for watermarked PNG output.
-
-Attaches a signed Content Credential to the image immediately after
-dual_watermark(). This is a soft-binding layer — strippable, but combined
-with the Arweave anchor it provides a recovery path.
-
-If settings.c2pa_cert_pem or c2pa_private_key_pem is None, signing is
-skipped and original bytes are returned. Same fallback on any c2pa error.
-
-Generate certs with: python scripts/generate_c2pa_cert.py
-"""
 import io
 import json
 import logging
@@ -20,15 +9,6 @@ logger = logging.getLogger(__name__)
 
 
 def sign_with_c2pa(image_bytes: bytes, provenance: dict) -> bytes:
-    """Attach a signed C2PA manifest to a watermarked PNG.
-
-    Args:
-        image_bytes: Watermarked PNG bytes.
-        provenance:  Dict with watermark_id, short_id, timestamp.
-
-    Returns:
-        Signed PNG bytes, or original bytes if signing is unavailable/fails.
-    """
     if not settings.c2pa_cert_pem or not settings.c2pa_private_key_pem:
         logger.debug("C2PA signing skipped: certs not configured")
         return image_bytes
@@ -63,7 +43,7 @@ def sign_with_c2pa(image_bytes: bytes, provenance: dict) -> bytes:
             _sign,
             c2pa.SigningAlg.ES256,
             settings.c2pa_cert_pem.encode(),
-            None,  # no TSA
+            None,
         )
 
         builder = c2pa.Builder(json.dumps(manifest_def))

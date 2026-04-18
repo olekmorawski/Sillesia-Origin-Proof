@@ -1,22 +1,4 @@
 #!/usr/bin/env python3
-"""One-time ZK circuit setup for Poseidon commitment circuit.
-
-Run ONCE before starting the server:
-    python scripts/setup_zk_circuit.py
-
-What it does:
-  1. Exports trivial Relu circuit to ONNX opset 11 (zk/circuit.onnx)
-  2. Generates ezkl circuit settings with input_visibility=hashed (zk/settings.json)
-  3. Calibrates settings for resource usage
-  4. Fetches the SRS (structured reference string)
-  5. Compiles the circuit (zk/model.compiled)
-  6. Generates proving and verification keys (zk/pk.key, zk/vk.key)
-
-Expected runtime: < 1 min on CPU.
-
-Re-running is safe — skips steps whose output files already exist,
-UNLESS you pass --force to redo everything from scratch.
-"""
 
 import logging
 import pathlib

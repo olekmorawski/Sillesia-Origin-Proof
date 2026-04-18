@@ -1,13 +1,3 @@
-"""One-time ZK circuit setup for Poseidon commitment circuit.
-
-Run once before starting the server:
-    python scripts/setup_zk_circuit.py
-
-Exports a trivial Relu circuit to ONNX (opset 11), sets input_visibility=hashed
-so ezkl uses Poseidon hash as the public commitment, calibrates settings,
-downloads the SRS, compiles the circuit, and generates proving/verification keys.
-All artefacts are written to zk/.
-"""
 
 import asyncio
 import json
@@ -34,19 +24,8 @@ from pipeline.zk_proof import (
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Circuit ONNX export
-# Architecture: Relu, opset 11 (trivial — real commitment is Poseidon(inputs))
-# Input: short_id_bits[64] ++ image_hash_bits[256] ++ phash_bits[64] = 384 floats
-# ---------------------------------------------------------------------------
 
 def export_circuit_onnx() -> None:
-    """Build and save a trivial Relu circuit as ONNX opset 11.
-
-    The circuit itself does nothing meaningful — the commitment is the
-    Poseidon hash of the quantized inputs, computed natively by ezkl
-    when input_visibility is set to 'hashed'.
-    """
     import onnx
     from onnx import helper, TensorProto
 
@@ -67,16 +46,8 @@ def export_circuit_onnx() -> None:
     logger.info("PoseidonCommitment ONNX exported (opset 11) → %s", ONNX_PATH)
 
 
-# ---------------------------------------------------------------------------
-# Circuit setup
-# ---------------------------------------------------------------------------
 
 def setup_circuit_sync() -> None:
-    """Run full ezkl setup synchronously.
-
-    ezkl.get_srs uses asyncio.get_running_loop() internally, so all calls
-    run inside loop.run_until_complete() to provide a running event loop.
-    """
     ezkl = _get_ezkl()
     ZK_DIR.mkdir(exist_ok=True)
 
@@ -90,7 +61,6 @@ def setup_circuit_sync() -> None:
         run_args = ezkl.PyRunArgs()
         run_args.input_visibility = "hashed"
         run_args.output_visibility = "private"
-        # param_visibility stays "fixed" (default) — no trainable params in circuit
 
         logger.info("gen_settings (input_visibility=hashed)...")
         ezkl.gen_settings(str(ONNX_PATH), str(SETTINGS_PATH), py_run_args=run_args)
