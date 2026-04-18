@@ -9,9 +9,10 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
+        extra="ignore",
     )
 
-    openrouter_api_key: str
+    openrouter_api_key: str = ""
     default_model: str = "black-forest-labs/flux.2-klein-4b"
 
     wallet_private_key: str = ""
