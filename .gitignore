@@ -8,6 +8,9 @@ deployment.json
 .planning/
 .idea/
 
+# ZK large generated files
+zk/pk.key
+
 # Node
 node_modules/
 dist/
