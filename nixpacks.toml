@@ -3,7 +3,7 @@ python = {}
 node = {}
 
 [phases.setup]
-cmds = ["curl -fsSL https://fnm.vercel.app/install | bash", "source /root/.bashrc", "fnm install 18"]
+nixPkgs = ["python311", "nodejs-18_x"]
 
 [phases.install]
 cmds = ["npm install", "pip install -r requirements.txt"]

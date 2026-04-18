@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import logging
+import os
 import uuid
 from datetime import datetime, timezone
 
@@ -57,7 +58,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-import os
 # Ensure directory exists before mounting to prevent crash
 os.makedirs("dist/assets", exist_ok=True)
 if not os.path.exists("dist/index.html"):
