@@ -1,0 +1,15 @@
+[providers]
+python = {}
+node = {}
+
+[phases.setup]
+cmds = ["curl -fsSL https://fnm.vercel.app/install | bash", "source /root/.bashrc", "fnm install 18"]
+
+[phases.install]
+cmds = ["npm install", "pip install -r requirements.txt"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "uvicorn main:app --host 0.0.0.0 --port $PORT"

@@ -57,6 +57,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import os
+# Ensure directory exists before mounting to prevent crash
+os.makedirs("dist/assets", exist_ok=True)
+if not os.path.exists("dist/index.html"):
+    with open("dist/index.html", "w") as f:
+        f.write("Frontend not built yet. Run npm run build.")
+
 app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
 
 _arq_pool = None
