@@ -8,6 +8,8 @@ Verifying an image is just as simple. You upload any version of it — the origi
 
 **Contract on Base Sepolia:** `0xb723517154096160EFf074263027030Af235cD07`
 
+**License:** GNU General Public License v3.0 (GPLv3)
+
 ---
 
 Proof of Origin is a web app that lets you generate AI images and later prove they are genuine. It watermarks each image invisibly, registers a cryptographic proof on a public blockchain, and stores the full record permanently on Arweave. Anyone can upload that image — or a screenshot or a crop of it — and the app will tell them whether it was generated here, when, with which model, and whether it has been altered since. The system is designed to be compliant with the upcoming EU AI Act, which will require providers of AI-generated content to ensure that outputs are machine-detectable as artificial.
