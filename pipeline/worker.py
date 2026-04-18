@@ -1,16 +1,3 @@
-"""ARQ worker — sequential outbox processor.
-
-Each job goes through three idempotent steps:
-  1. create_placeholder  — reserves on-chain slot
-  2. completeRegistration — fills in hash + optional ZK proof
-  3. upload_provenance  — permanent Arweave anchor via Irys
-
-Steps are idempotent: if the worker crashes and restarts, it reads the current
-job status from SQLite and resumes from the last incomplete step.
-
-Start the worker:
-    arq pipeline.worker.WorkerSettings
-"""
 import asyncio
 import logging
 
@@ -27,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 async def _maybe_generate_proof(short_id: str, image):
-    """Generate ZK proof if the circuit is set up; otherwise return (None, None)."""
     if not zk_ready():
         return None, None
     proof_path = await generate_proof(short_id, image.sha256, image.phash)
@@ -36,22 +22,15 @@ async def _maybe_generate_proof(short_id: str, image):
     calldata = read_proof_calldata(short_id)
     if calldata is None:
         return None, None
-    return calldata  # (proof_bytes, proof_instances)
+    return calldata
 
 
 async def process_registration(ctx, watermark_id: str) -> None:
-    """ARQ job: placeholder → register → Arweave. Idempotent at each step.
-
-    ARQ will retry this function up to WorkerSettings.max_tries times on
-    any unhandled exception, with exponential backoff.
-    """
     job = get_job(DB_PATH, watermark_id)
     if job is None:
         logger.error("process_registration: no job found for watermark_id=%s", watermark_id)
         return
 
-    # Step 1: reserve on-chain slot
-    # NOTE: blockchain functions use short_id (16-char hex), not the UUID watermark_id
     image = get_image(DB_PATH, watermark_id)
     if image is None:
         logger.error("process_registration: no image found for watermark_id=%s", watermark_id)
@@ -63,7 +42,6 @@ async def process_registration(ctx, watermark_id: str) -> None:
                    tx_hash=receipt["transactionHash"].hex())
         job = get_job(DB_PATH, watermark_id)
 
-    # Step 2: complete registration
     if job.status == "placeholder_done":
         proof_bytes, proof_instances = await _maybe_generate_proof(image.short_id, image)
         receipt = await asyncio.to_thread(
@@ -75,7 +53,6 @@ async def process_registration(ctx, watermark_id: str) -> None:
                    tx_hash=receipt["transactionHash"].hex())
         job = get_job(DB_PATH, watermark_id)
 
-    # Step 3: Arweave permanent anchor
     if job.status == "registered":
         image = get_image(DB_PATH, watermark_id)
         provenance = {
@@ -98,6 +75,6 @@ class WorkerSettings:
     functions = [process_registration]
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     max_tries = 5
-    retry_delay = 30        # seconds base; ARQ doubles on each retry
-    job_timeout = 300       # seconds max per attempt
-    keep_result = 3600      # seconds to keep completed job result in Redis
+    retry_delay = 30
+    job_timeout = 300
+    keep_result = 3600

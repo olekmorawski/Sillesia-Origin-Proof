@@ -15,7 +15,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from settings import settings  # noqa: F401 — validates env vars at startup
+from settings import settings
 from pipeline.watermark import (
     _short_id,
     compute_phash,
@@ -89,18 +89,6 @@ async def root():
 @app.post("/generate")
 @limiter.limit("5/minute")
 async def generate(request: Request, body: GenerateRequest):
-    """Generate a watermarked image and enqueue provenance registration.
-
-    Pipeline:
-      1. generate_image   — OpenRouter
-      2. dual_watermark   — TrustMark + DWT-DCT-SVD
-      3. sign_with_c2pa   — C2PA manifest (soft-binding, skipped if unconfigured)
-      4. compute_phash    — DINOv2 binarized uint64
-      5. SQLite write     — images + outbox_jobs (atomic)
-      6. ARQ enqueue      — worker handles placeholder → register → Arweave
-
-    Returns immediately; blockchain + Arweave happen in the background.
-    """
     model = body.model or settings.default_model
 
     try:
@@ -131,7 +119,6 @@ async def generate(request: Request, body: GenerateRequest):
 
     job_id = str(uuid.uuid4())
 
-    # Atomic write: both rows committed or neither
     insert_image_and_job(
         DB_PATH, watermark_id, short_id, signed_png, image_hash, phash_int,
         body.prompt, model, job_id,
@@ -151,7 +138,6 @@ async def generate(request: Request, body: GenerateRequest):
 
 @app.post("/verify")
 async def verify(file: UploadFile = File(...)):
-    """Verify provenance of an uploaded PNG or JPEG."""
     png_bytes = await file.read()
     uploaded_sha256 = sha256_hash(png_bytes)
     uploaded_phash = await asyncio.to_thread(compute_phash, png_bytes)
@@ -184,7 +170,6 @@ async def verify(file: UploadFile = File(...)):
             "on_chain": None,
         }
 
-    # Check registration status from SQLite outbox
     job = get_job_by_short_id(DB_PATH, short_id)
     if job and job.status in ("pending", "placeholder_done", "registered"):
         return {
@@ -238,7 +223,6 @@ async def verify(file: UploadFile = File(...)):
     integrity = "original" if exact_match else ("transformed" if perceptual_match else "none")
     proof_verified_on_chain = on_chain.get("proof_verified_on_chain", False)
 
-    # Fetch generation metadata + tx_hash from SQLite
     image_row = get_image_by_short_id(DB_PATH, short_id)
     job_row = get_job_by_short_id(DB_PATH, short_id)
     tx_hash = job_row.tx_hash if job_row else None

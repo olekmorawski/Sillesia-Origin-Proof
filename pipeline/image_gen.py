@@ -1,4 +1,3 @@
-"""Image generation via OpenRouter /chat/completions with modalities: ["image"]."""
 
 import base64
 import logging
@@ -22,16 +21,6 @@ SUPPORTED_MODELS = [
 def generate_image(
     refined_prompt: str, model: str | None = None, dev_mode: bool = False
 ) -> bytes:
-    """Generate an image from a refined prompt using a configurable model via OpenRouter.
-
-    Args:
-        refined_prompt: Refined prompt string from refine_prompt().
-        model: OpenRouter model ID. Defaults to settings.default_model.
-        dev_mode: If True, use flux.2-klein-4b (faster/cheaper) instead of selected model.
-
-    Returns:
-        Raw PNG bytes (RGB-normalized, no disk write).
-    """
     if dev_mode:
         model = "black-forest-labs/flux.2-klein-4b"
     elif model is None:
@@ -62,30 +51,25 @@ def generate_image(
     if "error" in data:
         raise RuntimeError(f"OpenRouter error: {data['error']['message']}")
 
-    # Image is in choices[0].message.images[0].image_url.url
-    # as a data URL: "data:image/png;base64,<b64data>"
     try:
         image_url = data["choices"][0]["message"]["images"][0]["image_url"]["url"]
     except (KeyError, IndexError, TypeError) as exc:
         raise ValueError(f"Unexpected image response shape: {data}") from exc
 
     if image_url.startswith("data:"):
-        # data URL — strip "data:image/png;base64," prefix and decode
         _header, b64_data = image_url.split(",", 1)
         raw_bytes = base64.b64decode(b64_data)
     else:
-        # Plain URL fallback — download the image
         img_resp = requests.get(image_url, timeout=60)
         img_resp.raise_for_status()
         raw_bytes = img_resp.content
 
-    # Normalize to RGB PNG in-memory (no disk writes)
     img = Image.open(BytesIO(raw_bytes))
-    img.load()  # force decode while buf is in scope (avoids lazy-load corruption)
+    img.load()
     if img.mode != "RGB":
         img = img.convert("RGB")
     buf = BytesIO()
-    img.save(buf, format="PNG")  # format= required for BytesIO (no filename)
+    img.save(buf, format="PNG")
     png_bytes = buf.getvalue()
     logger.info("generated %d bytes PNG (%dx%d)", len(png_bytes), img.size[0], img.size[1])
     return png_bytes
