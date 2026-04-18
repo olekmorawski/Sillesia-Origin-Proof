@@ -1,0 +1,23 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+deployment.json
+.planning/
+.idea/
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Vite
+vite.config.ts.timestamp-*
+tsconfig.tsbuildinfo
+
+# OS
+.DS_Store
+
