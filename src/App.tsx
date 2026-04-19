@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
-import { useAppState } from '../../../Origin Proof/src/hooks/useAppState';
-import { useGenerate } from '../../../Origin Proof/src/hooks/useGenerate';
-import { useVerify } from '../../../Origin Proof/src/hooks/useVerify';
+import { useAppState } from './hooks/useAppState';
+import { useGenerate } from './hooks/useGenerate';
+import { useVerify } from './hooks/useVerify';
 import { Navigation } from './components/Navigation';
 import { GenerateView } from './components/Generate/GenerateView';
 import { VerifyView } from './components/Verify/VerifyView';

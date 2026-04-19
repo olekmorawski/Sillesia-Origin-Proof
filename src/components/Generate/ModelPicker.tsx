@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronDown, CheckCircle2, Settings2 } from 'lucide-react';
-import { AIModel } from '../../../../../Origin Proof/src/types';
-import { MODELS } from '../../../../../Origin Proof/src/constants';
+import { AIModel } from '../../types';
+import { MODELS } from '../../constants';
 
 interface ModelPickerProps {
   selectedModel: AIModel;

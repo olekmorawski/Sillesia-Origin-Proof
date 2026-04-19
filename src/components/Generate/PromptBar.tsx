@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles } from 'lucide-react';
-import { AIModel } from '../../../../../Origin Proof/src/types';
+import { AIModel } from '../../types';
 import { ModelPicker } from './ModelPicker';
 
 interface PromptBarProps {

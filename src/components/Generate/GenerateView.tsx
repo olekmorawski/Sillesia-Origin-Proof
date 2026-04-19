@@ -1,5 +1,5 @@
 import React from 'react';
-import { AIModel } from '../../../../../Origin Proof/src/types';
+import { AIModel } from '../../types';
 import { ImageDisplay } from './ImageDisplay';
 import { PromptBar } from './PromptBar';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Loader2, ImageIcon, Download } from 'lucide-react';
-import { extractModelName } from '../../../../../Origin Proof/src/utils/file';
+import { extractModelName } from '../../utils/file';
 
 interface ImageDisplayProps {
   imageB64: string | null;

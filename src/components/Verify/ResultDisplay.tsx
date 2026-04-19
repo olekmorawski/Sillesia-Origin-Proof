@@ -1,8 +1,8 @@
 import React from 'react';
 import { Loader2, CheckCircle2, XCircle, ExternalLink, Link as LinkIcon } from 'lucide-react';
-import { VerificationResult } from '../../../../../Origin Proof/src/types';
-import { extractModelName, formatAddress, formatDate } from '../../../../../Origin Proof/src/utils/file';
-import { useTrustlessVerify } from '../../../../../Origin Proof/src/hooks/useTrustlessVerify';
+import { VerificationResult } from '../../types';
+import { extractModelName, formatAddress, formatDate } from '../../utils/file';
+import { useTrustlessVerify } from '../../hooks/useTrustlessVerify';
 
 interface ResultDisplayProps {
   verifyResult: VerificationResult;

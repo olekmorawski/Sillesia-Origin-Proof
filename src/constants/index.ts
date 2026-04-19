@@ -1,4 +1,4 @@
-import { AIModel } from '../../../../Origin Proof/src/types';
+import { AIModel } from '../types';
 
 export const PROGRESS_PHASES = [
   { label: 'Refining prompt', duration: 8000 },

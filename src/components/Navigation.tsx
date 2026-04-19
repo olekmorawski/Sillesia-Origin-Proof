@@ -1,7 +1,7 @@
 import React, { Dispatch } from 'react';
 import { Sparkles, Shield } from 'lucide-react';
-import { Mode } from '../../../../Origin Proof/src/types';
-import { AppAction } from '../../../../Origin Proof/src/hooks';
+import { Mode } from '../types';
+import { AppAction } from '../hooks';
 
 interface NavigationProps {
   currentMode: Mode;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { VerificationResult } from '../../../../../Origin Proof/src/types';
+import { VerificationResult } from '../../types';
 import { UploadZone } from './UploadZone';
 import { ResultDisplay } from './ResultDisplay';
 

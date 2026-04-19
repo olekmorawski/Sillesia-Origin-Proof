@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { VerificationResult } from '../../../../Origin Proof/src/types';
+import { VerificationResult } from '../types';
 
 export interface GenerateResponse {
   image_b64: string;
